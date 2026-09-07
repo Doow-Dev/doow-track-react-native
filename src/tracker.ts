@@ -2,6 +2,14 @@ import { AppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { TrackEvent, TrackerOptions } from './types';
 
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 const STORAGE_KEY = '@doow/track/queue';
 
 const DEFAULT_OPTIONS: Required<Omit<TrackerOptions, 'attribution' | 'onError'>> = {
@@ -128,6 +136,7 @@ export class Tracker {
   private async sendWithRetry(batch: TrackEvent[]): Promise<void> {
     const payload = JSON.stringify({
       events: batch.map((e) => ({
+        event_id: generateUUID(),
         metric: e.metric,
         quantity: e.quantity,
         license_id: e.licenseId,
